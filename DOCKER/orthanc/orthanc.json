@@ -1,0 +1,94 @@
+{
+  "Name": "MEDIZEN",
+
+  "StorageDirectory": "/var/lib/orthanc/db",
+  "IndexDirectory": "/var/lib/orthanc/db",
+  "StorageCompression": true,
+  "MaximumStorageSize": 0,
+  "MaximumPatientCount": 0,
+
+  "AuthenticationEnabled": true,
+  "RegisteredUsers": {
+    "orthanc": "orthanc"
+  },
+
+  "RemoteAccessAllowed": true,
+
+  "Plugins": [
+    "/usr/share/orthanc/plugins"
+  ],
+
+  "PythonScript": "/python/service.py",
+  "Python": {
+    "Enable": true,
+    "Verbose": true
+  },
+
+  "OrthancExplorer2": {
+    "Enable": true,
+    "IsDefaultOrthancUI": true
+  },
+
+  "DicomWeb": {
+    "Enable": true,
+    "EnableQido": true,
+    "EnableWado": true,
+    "EnableStow": true
+  },
+
+  "Ohif": {
+    "Enable": true,
+    "DicomWebRoot": "/dicom-web/"
+  },
+
+  "StoneWebViewer": {
+    "Enable": true,
+    "DicomWebRoot": "/dicom-web/"
+  },
+
+  "WebViewer": {
+    "Enable": true
+  },
+
+  "Worklists": {
+    "Enable": true,
+    "Database": "/var/lib/orthanc/worklists"
+  },
+
+  "Wsi": {
+    "Enable": true,
+    "TilesRoot": "/var/lib/orthanc/wsi-tiles"
+  },
+
+  "Authorization": {
+    "Enabled": false
+  },
+
+  "DicomModalities": {
+    "DCMROUTER": ["DCMROUTER", "dicomrouter", 11112]
+  },
+
+  "HttpServerEnabled": true,
+  "HttpPort": 8042,
+
+  "DicomServerEnabled": true,
+  "DicomAet": "ORTHANC",
+  "DicomPort": 4242,
+
+  "DicomAlwaysAllowEcho": true,
+  "DicomAlwaysAllowStore": true,
+
+  "DicomAlwaysAllowFind": false,
+  "DicomAlwaysAllowGet": false,
+  "DicomAlwaysAllowMove": false,
+  "DicomCheckModalityHost": true,
+
+  // "DicomModalitiesInDatabase": true,
+
+  "HttpThreadsCount": 50,
+  "JobsHistorySize": 10,
+
+  "MetricsEnabled": true,
+  "ExecuteLuaEnabled": false,
+  "RestApiWriteToFileSystemEnabled": false
+}
