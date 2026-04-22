@@ -70,12 +70,39 @@ graph LR
    ```
 
 2. **Install Dependensi PHP (Composer)**
-   Unduh semua library yang dibutuhkan oleh Laravel:
+   Jika ini adalah instalasi baru, unduh semua library yang dibutuhkan:
    ```bash
    composer install
    ```
+   *Note: Jika muncul error "Class not found" saat install, pastikan folder `vendor` belum ada atau hapus folder `vendor` dan `composer.lock` lalu ulangi.*
 
-3. **Install Dependensi Frontend (NPM) - *Jika diperlukan***
+3. **Penanganan Folder Storage & Bootstrap (PENTING)**
+   Jika Anda baru melakukan `git clone`, folder `storage` dan sub-direktorinya seringkali tidak ikut ter-upload. Jalankan perintah berikut untuk memastikan struktur folder tersedia:
+   ```bash
+   # Masuk ke folder project, lalu buat struktur storage
+   mkdir -p storage/app/public
+   mkdir -p storage/framework/cache/data
+   mkdir -p storage/framework/sessions
+   mkdir -p storage/framework/views
+   mkdir -p storage/logs
+   mkdir -p bootstrap/cache
+
+   # Untuk pengguna Windows (Command Prompt):
+   # mkdir storage\app\public
+   # mkdir storage\framework\cache\data
+   # mkdir storage\framework\sessions
+   # mkdir storage\framework\views
+   # mkdir storage\logs
+   # mkdir bootstrap\cache
+   ```
+
+4. **Link Storage**
+   Agar file publik (gambar hasil pemeriksaan) dapat diakses, buat link simbolis:
+   ```bash
+   php artisan storage:link
+   ```
+
+5. **Install Dependensi Frontend (NPM) - *Jika diperlukan***
    ```bash
    npm install
    npm run build
@@ -224,6 +251,25 @@ DICOM_ROUTER_MODALITY=DCMROUTER
 
 ## 📄 Lisensi
 Didistribusikan di bawah lisensi MIT. Lihat file `LICENSE` untuk detail lebih lanjut.
+
+---
+
+## 🛠️ Troubleshooting (Masalah Umum)
+ 
+- **Error: `No such file or directory` (logs/laravel.log)**
+  Penyebab: Folder `storage/logs` belum ada.
+  Solusi: Jalankan `mkdir storage/logs`.
+
+- **Error: `The stream or file ".../logs/laravel.log" could not be opened in append mode`**
+  Penyebab: Masalah izin akses (permissions).
+  Solusi: Jalankan `chmod -R 775 storage bootstrap/cache` atau di Windows pastikan folder tidak *Read-only*.
+
+- **Error: `The implementation of "PUT" is not supported`**
+  Penyebab: Biasanya terjadi pada API SATUSEHAT jika ID tidak disertakan. Pastikan modul mapping sudah benar.
+
+- **Folder `vendor` tidak muncul setelah `composer install`**
+  Penyebab: Versi PHP tidak sesuai atau ekstensi PHP missing (seperti `zip`, `xml`, `mbstring`).
+  Solusi: Periksa `php -m` dan pastikan ekstensi tersebut aktif di `php.ini`.
 
 ---
 
