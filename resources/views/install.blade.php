@@ -218,7 +218,13 @@
                     },
                     error: function (xhr) {
                         btn.prop('disabled', false).text('Simpan & Verifikasi Koneksi');
-                        alert('Gagal menyimpan konfigurasi. Periksa izin akses file .env');
+                        let errorMsg = 'Error ' + xhr.status + ': ';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg += xhr.responseJSON.message;
+                        } else {
+                            errorMsg += 'Gagal menyimpan konfigurasi. Periksa izin folder root atau log error server.';
+                        }
+                        alert(errorMsg);
                     }
                 });
             });

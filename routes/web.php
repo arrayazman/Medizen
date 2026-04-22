@@ -316,6 +316,8 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/mapping-episodeofcare', [\App\Http\Controllers\MappingEpisodeOfCareController::class, 'index'])->name('mapping-episodeofcare');
         Route::post('/mapping-episodeofcare/post', [\App\Http\Controllers\MappingEpisodeOfCareController::class, 'post'])->name('mapping-episodeofcare.post');
+        Route::delete('/mapping-episodeofcare/destroy', [\App\Http\Controllers\MappingEpisodeOfCareController::class, 'destroy'])->name('mapping-episodeofcare.destroy');
+        Route::get('/mapping-episodeofcare/search-penyakit', [\App\Http\Controllers\MappingEpisodeOfCareController::class, 'searchPenyakit'])->name('mapping-episodeofcare.search-penyakit');
 
         Route::get('/mapping-allergy', [\App\Http\Controllers\MappingAllergyController::class, 'index'])->name('mapping-allergy');
         Route::post('/mapping-allergy/store', [\App\Http\Controllers\MappingAllergyController::class, 'store'])->name('mapping-allergy.store');
@@ -330,6 +332,40 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/kirim-diagnosticreport',  [\App\Http\Controllers\KirimDiagnosticReportController::class, 'index'])->name('kirim-diagnosticreport');
         Route::post('/kirim-diagnosticreport/tampil', [\App\Http\Controllers\KirimDiagnosticReportController::class, 'tampil'])->name('kirim-diagnosticreport.tampil');
         Route::post('/kirim-diagnosticreport/post',   [\App\Http\Controllers\KirimDiagnosticReportController::class, 'post'])->name('kirim-diagnosticreport.post');
+
+        Route::get('/kirim-condition', [\App\Http\Controllers\KirimConditionController::class, 'index'])->name('kirim-condition');
+        Route::post('/kirim-condition/post', [\App\Http\Controllers\KirimConditionController::class, 'post'])->name('kirim-condition.post');
+
+        Route::get('/kirim-procedure', [\App\Http\Controllers\KirimProcedureController::class, 'index'])->name('kirim-procedure');
+        Route::post('/kirim-procedure/post', [\App\Http\Controllers\KirimProcedureController::class, 'post'])->name('kirim-procedure.post');
+
+        Route::get('/kirim-observation-ttv', [\App\Http\Controllers\KirimObservationTTVController::class, 'index'])->name('kirim-observation-ttv');
+        Route::post('/kirim-observation-ttv/post', [\App\Http\Controllers\KirimObservationTTVController::class, 'post'])->name('kirim-observation-ttv.post');
+
+        Route::get('/mapping-laborat', [\App\Http\Controllers\MappingLaboratController::class, 'index'])->name('mapping-laborat');
+        Route::post('/mapping-laborat', [\App\Http\Controllers\MappingLaboratController::class, 'store'])->name('mapping-laborat.store');
+        Route::delete('/mapping-laborat/{id}', [\App\Http\Controllers\MappingLaboratController::class, 'destroy'])->name('mapping-laborat.destroy');
+
+        Route::get('/kirim-observation-lab-pk', [\App\Http\Controllers\KirimObservationLabPKController::class, 'index'])->name('kirim-observation-lab-pk');
+        Route::post('/kirim-observation-lab-pk/post', [\App\Http\Controllers\KirimObservationLabPKController::class, 'post'])->name('kirim-observation-lab-pk.post');
+
+        Route::get('/mapping-obat', [\App\Http\Controllers\MappingObatController::class, 'index'])->name('mapping-obat');
+        Route::post('/mapping-obat', [\App\Http\Controllers\MappingObatController::class, 'store'])->name('mapping-obat.store');
+        Route::delete('/mapping-obat/{id}', [\App\Http\Controllers\MappingObatController::class, 'destroy'])->name('mapping-obat.destroy');
+
+        Route::get('/mapping-radiologi', [\App\Http\Controllers\MappingRadiologiController::class, 'index'])->name('mapping-radiologi');
+        Route::post('/mapping-radiologi', [\App\Http\Controllers\MappingRadiologiController::class, 'store'])->name('mapping-radiologi.store');
+        Route::delete('/mapping-radiologi/{id}', [\App\Http\Controllers\MappingRadiologiController::class, 'destroy'])->name('mapping-radiologi.destroy');
+
+        Route::get('/mapping-vaksin', [\App\Http\Controllers\MappingVaksinController::class, 'index'])->name('mapping-vaksin');
+        Route::post('/mapping-vaksin', [\App\Http\Controllers\MappingVaksinController::class, 'store'])->name('mapping-vaksin.store');
+        Route::delete('/mapping-vaksin/{id}', [\App\Http\Controllers\MappingVaksinController::class, 'destroy'])->name('mapping-vaksin.destroy');
+
+        Route::get('/mapping-lokasi', [\App\Http\Controllers\MappingLokasiController::class, 'index'])->name('mapping-lokasi');
+        Route::post('/mapping-lokasi', [\App\Http\Controllers\MappingLokasiController::class, 'store'])->name('mapping-lokasi.store');
+
+        Route::get('/mapping-organisasi', [\App\Http\Controllers\MappingOrganisasiController::class, 'index'])->name('mapping-organisasi');
+        Route::post('/mapping-organisasi', [\App\Http\Controllers\MappingOrganisasiController::class, 'store'])->name('mapping-organisasi.store');
     });
 
 

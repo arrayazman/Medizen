@@ -121,16 +121,138 @@ class KirimMedicationController extends Controller
             $ranap->where($filter);
         }
 
+        $perPage = $request->get('per_page', 25);
+        if ($perPage == 'all') {
+            $perPage = 1000000;
+        }
+
         $orders = $ralan->union($ranap)
                         ->orderBy('no_rawat', 'desc')
-                        ->paginate(25)
+                        ->paginate($perPage)
                         ->withQueryString();
 
-        return view('satusehat.kirim_medication', compact('orders', 'tgl1', 'tgl2', 'keyword'));
+        return view('satusehat.kirim_medication', compact('orders', 'tgl1', 'tgl2', 'keyword', 'perPage'));
     }
 
-    public function post(Request $request, SatuSehatRadiologiService $satusehatService)
+    public function post(Request $request, SatuSehatRadiologiService $ssService)
     {
-        return response()->json(['ok' => false, 'msg' => 'Metode POST sedang disiapkan mengikuti struktur MedicationDispense.', 'logs' => []]);
+        $logs = [];
+        $addLog = function ($type, $msg) use (&$logs) { $logs[] = ['type' => $type, 'msg' => $msg]; };
+
+        try {
+            $data = $request->all();
+            
+            if (empty($data['id_medicationrequest'])) throw new \Exception('MedicationRequest ID belum ada (Resep belum terkirim).');
+            if (empty($data['id_medication'])) throw new \Exception('Medication ID belum ada (Master Obat belum dimapping).');
+            if (empty($data['id_encounter'])) throw new \Exception('Encounter ID belum ada (Pasien belum registrasi SatuSehat).');
+            if (empty($data['id_lokasi_satusehat'])) throw new \Exception('ID Lokasi Depo Farmasi belum ada.');
+
+            $addLog('info', 'MENGAMBIL ID FHIR PASIEN & PRAKTISI...');
+            
+            $idPasien = $ssService->getPatientId($data['no_ktp_pasien']);
+            if (!$idPasien) throw new \Exception('Patient ID tidak ditemukan. NIK: ' . $data['no_ktp_pasien']);
+            
+            $idDokter = $ssService->getPractitionerId($data['no_ktp_praktisi']);
+            if (!$idDokter) throw new \Exception('Practitioner ID (Dokter) tidak ditemukan. NIK: ' . $data['no_ktp_praktisi']);
+
+            $orgId = $ssService->getOrganizationId();
+            $effectiveDateTime = \Carbon\Carbon::parse($data['tgl_perawatan'] . ' ' . $data['jam_beri'])->toIso8601String();
+
+            $payload = [
+                'resourceType' => 'MedicationDispense',
+                'status' => 'completed',
+                'medicationReference' => [
+                    'reference' => "Medication/{$data['id_medication']}",
+                    'display' => $data['obat_display']
+                ],
+                'subject' => [
+                    'reference' => "Patient/{$idPasien}"
+                ],
+                'context' => [
+                    'reference' => "Encounter/{$data['id_encounter']}"
+                ],
+                'performer' => [
+                    [
+                        'actor' => [
+                            'reference' => "Practitioner/{$idDokter}"
+                        ]
+                    ]
+                ],
+                'authorizingPrescription' => [
+                    [
+                        'reference' => "MedicationRequest/{$data['id_medicationrequest']}"
+                    ]
+                ],
+                'location' => [
+                    'reference' => "Location/{$data['id_lokasi_satusehat']}",
+                    'display' => $data['nm_bangsal']
+                ],
+                'quantity' => [
+                    'value' => (float)$data['jml'],
+                    'system' => "http://terminology.hl7.org/CodeSystem/v3-orderableDrugForm",
+                    'code' => $data['denominator_code'] ?: 'TAB'
+                ],
+                'whenHandedOver' => $effectiveDateTime,
+                'dosageInstruction' => [
+                    [
+                        'text' => $data['aturan'],
+                        'route' => [
+                            'coding' => [
+                                [
+                                    'system' => $data['route_system'] ?: 'http://www.whocc.no/atc',
+                                    'code' => $data['route_code'] ?: 'oral',
+                                    'display' => $data['route_display'] ?: 'Oral'
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ];
+
+            if ($data['id_medication_dispense']) {
+                $payload['id'] = $data['id_medication_dispense'];
+            } else {
+                $payload['identifier'] = [
+                    [
+                        'system' => "http://sys-ids.kemkes.go.id/medicationdispense/{$orgId}",
+                        'value' => "{$data['no_resep']}.{$data['kode_brng']}"
+                    ]
+                ];
+            }
+
+            $isUpdate = !empty($data['id_medication_dispense']);
+            $addLog('info', ($isUpdate ? 'UPDATE' : 'KIRIM') . ' RESOURCE MEDICATION DISPENSE...');
+
+            $res = $ssService->sendResource('MedicationDispense', $payload, $data['id_medication_dispense'] ?: null);
+            
+            $fhirId = $res['id'];
+            $addLog('ok', "BERHASIL DISIMPAN: " . $fhirId);
+
+            // Simpan ke SIMRS
+            $this->saveToSimrs($data, $fhirId);
+
+            return response()->json(['ok' => true, 'id_medication_dispense' => $fhirId, 'logs' => $logs]);
+
+        } catch (\Exception $e) {
+            $addLog('err', $e->getMessage());
+            return response()->json(['ok' => false, 'msg' => $e->getMessage(), 'logs' => $logs]);
+        }
+    }
+
+    private function saveToSimrs($data, $fhirId)
+    {
+        DB::connection('simrs')->table('satu_sehat_medicationdispense')->updateOrInsert(
+            [
+                'no_rawat' => $data['no_rawat'],
+                'tgl_perawatan' => $data['tgl_perawatan'],
+                'jam' => $data['jam_beri'],
+                'kode_brng' => $data['kode_brng'],
+                'no_batch' => $data['no_batch'],
+                'no_faktur' => $data['no_faktur']
+            ],
+            [
+                'id_medicationdispanse' => $fhirId
+            ]
+        );
     }
 }

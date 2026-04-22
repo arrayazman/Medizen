@@ -81,11 +81,16 @@ class KirimObservationController extends Controller
             });
         }
 
+        $perPage = $request->get('per_page', 25);
+        if ($perPage == 'all') {
+            $perPage = 1000000;
+        }
+
         $orders = $query->orderBy('permintaan_radiologi.noorder', 'desc')
-                        ->paginate(25)
+                        ->paginate($perPage)
                         ->withQueryString();
 
-        return view('satusehat.kirim_observation', compact('orders', 'tgl1', 'tgl2', 'keyword'));
+        return view('satusehat.kirim_observation', compact('orders', 'tgl1', 'tgl2', 'keyword', 'perPage'));
     }
 
     public function post(Request $request)

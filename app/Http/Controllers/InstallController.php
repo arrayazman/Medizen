@@ -11,6 +11,30 @@ class InstallController extends Controller
 {
     public function index()
     {
+        // Pre-check basic requirement: Storage folders
+        $requiredFolders = [
+            storage_path('app/public'),
+            storage_path('framework/cache/data'),
+            storage_path('framework/sessions'),
+            storage_path('framework/views'),
+            storage_path('logs'),
+            base_path('bootstrap/cache')
+        ];
+
+        $missingFolders = [];
+        foreach ($requiredFolders as $folder) {
+            if (!file_exists($folder)) {
+                $missingFolders[] = str_replace(base_path() . DIRECTORY_SEPARATOR, '', $folder);
+            }
+        }
+
+        if (!empty($missingFolders)) {
+            return "<h3>Instalasi Belum Siap (Izin Folder)</h3>
+                    <p>Folder berikut belum ada atau tidak bisa diakses. Silakan buat folder ini secara manual:</p>
+                    <ul><li>" . implode("</li><li>", $missingFolders) . "</li></ul>
+                    <p>Setelah dibuat, silakan <a href='/install'>Refresh Halaman</a>.</p>";
+        }
+
         try {
             // Check if already installed
             if (Schema::hasTable('users') && DB::table('users')->count() > 0) {
@@ -22,8 +46,13 @@ class InstallController extends Controller
 
         $envData = [];
         $envPath = base_path('.env');
-        if (file_exists($envPath)) {
-            $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        $envExamplePath = base_path('.env.example');
+        
+        // Use .env if exists, otherwise fallback to .env.example for defaults
+        $targetPath = file_exists($envPath) ? $envPath : (file_exists($envExamplePath) ? $envExamplePath : null);
+
+        if ($targetPath) {
+            $lines = file($targetPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
             foreach ($lines as $line) {
                 if (strpos($line, '=') !== false && strpos($line, '#') !== 0) {
                     list($key, $value) = explode('=', $line, 2);
@@ -75,28 +104,53 @@ class InstallController extends Controller
 
         try {
             $envPath = base_path('.env');
-            if (file_exists($envPath)) {
-                $lines = file($envPath);
-                $newLines = [];
-                foreach ($lines as $line) {
-                    $matched = false;
-                    foreach ($data as $key => $value) {
-                        $keyUpper = strtoupper($key);
-                        if (preg_match("/^{$keyUpper}=/", $line)) {
-                            $finalValue = (strpos($value, ' ') !== false || strpos($value, '#') !== false) ? "\"$value\"" : $value;
-                            $newLines[] = "{$keyUpper}={$finalValue}\n";
-                            $matched = true;
-                            break;
-                        }
+            $envExamplePath = base_path('.env.example');
+
+            // 1. If .env doesn't exist, try to create it from example
+            if (!file_exists($envPath)) {
+                if (file_exists($envExamplePath)) {
+                    if (!copy($envExamplePath, $envPath)) {
+                        throw new \Exception('Gagal menyalin .env.example ke .env. Pastikan folder root memiliki izin tulis.');
                     }
-                    if (!$matched) {
-                        $newLines[] = $line;
-                    }
+                } else {
+                    throw new \Exception('File .env.example tidak ditemukan. Pastikan instalasi lengkap.');
                 }
-                file_put_contents($envPath, implode('', $newLines));
             }
 
-            Artisan::call('config:clear');
+            // 2. Check if writable
+            if (!is_writable($envPath)) {
+                throw new \Exception('File .env tidak dapat ditulis. Periksa izin akses (CHMOD) file tersebut.');
+            }
+
+            $lines = file($envPath);
+            $newLines = [];
+            foreach ($lines as $line) {
+                $matched = false;
+                foreach ($data as $key => $value) {
+                    $keyUpper = strtoupper($key);
+                    if (preg_match("/^{$keyUpper}=/", $line)) {
+                        $finalValue = (strpos($value, ' ') !== false || strpos($value, '#') !== false) ? "\"$value\"" : $value;
+                        $newLines[] = "{$keyUpper}={$finalValue}\n";
+                        $matched = true;
+                        break;
+                    }
+                }
+                if (!$matched) {
+                    $newLines[] = $line;
+                }
+            }
+            
+            // Add missing keys if they were not in the file
+            $newContent = implode('', $newLines);
+            foreach ($data as $key => $value) {
+                $keyUpper = strtoupper($key);
+                if (strpos($newContent, "{$keyUpper}=") === false) {
+                    $finalValue = (strpos($value, ' ') !== false || strpos($value, '#') !== false) ? "\"$value\"" : $value;
+                    $newContent .= "{$keyUpper}={$finalValue}\n";
+                }
+            }
+
+            file_put_contents($envPath, $newContent);
 
             return response()->json([
                 'success' => true,
@@ -105,7 +159,7 @@ class InstallController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal memperbarui .env: ' . $e->getMessage()
+                'message' => 'Gagal memperbarui: ' . $e->getMessage()
             ], 500);
         }
     }

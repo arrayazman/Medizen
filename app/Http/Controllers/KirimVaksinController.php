@@ -69,11 +69,16 @@ class KirimVaksinController extends Controller
             });
         }
 
+        $perPage = $request->get('per_page', 25);
+        if ($perPage == 'all') {
+            $perPage = 1000000;
+        }
+
         $orders = $query->orderBy('detail_pemberian_obat.tgl_perawatan', 'desc')
                         ->orderBy('detail_pemberian_obat.jam', 'desc')
-                        ->paginate(25)->withQueryString();
+                        ->paginate($perPage)->withQueryString();
 
-        return view('satusehat.kirim_vaksin', compact('orders', 'tgl1', 'tgl2', 'keyword'));
+        return view('satusehat.kirim_vaksin', compact('orders', 'tgl1', 'tgl2', 'keyword', 'perPage'));
     }
 
     public function post(Request $request)

@@ -237,9 +237,25 @@
                         class="menu-item {{ request()->routeIs('satusehat.kirim-observation') ? 'active' : '' }}">
                         <i data-feather="file-text"></i> <span>Kirim Observation</span>
                     </a>
+                    <a href="{{ route('satusehat.kirim-observation-lab-pk') }}"
+                        class="menu-item {{ request()->routeIs('satusehat.kirim-observation-lab-pk') ? 'active' : '' }}">
+                        <i data-feather="microscope"></i> <span>Kirim Observation Lab PK</span>
+                    </a>
+                    <a href="{{ route('satusehat.kirim-observation-ttv') }}"
+                        class="menu-item {{ request()->routeIs('satusehat.kirim-observation-ttv') ? 'active' : '' }}">
+                        <i data-feather="heart"></i> <span>Kirim Observation TTV</span>
+                    </a>
                     <a href="{{ route('satusehat.kirim-diagnosticreport') }}"
                         class="menu-item {{ request()->routeIs('satusehat.kirim-diagnosticreport') ? 'active' : '' }}">
                         <i data-feather="check-square"></i> <span>Kirim Diag.Report</span>
+                    </a>
+                    <a href="{{ route('satusehat.kirim-condition') }}"
+                        class="menu-item {{ request()->routeIs('satusehat.kirim-condition') ? 'active' : '' }}">
+                        <i data-feather="activity"></i> <span>Kirim Condition</span>
+                    </a>
+                    <a href="{{ route('satusehat.kirim-procedure') }}"
+                        class="menu-item {{ request()->routeIs('satusehat.kirim-procedure') ? 'active' : '' }}">
+                        <i data-feather="tool"></i> <span>Kirim Procedure</span>
                     </a>
                     <a href="{{ route('satusehat.kirim-allergy') }}"
                         class="menu-item {{ request()->routeIs('satusehat.kirim-allergy') ? 'active' : '' }}">
@@ -264,6 +280,30 @@
                     <a href="{{ route('satusehat.mapping-episodeofcare') }}"
                         class="menu-item {{ request()->routeIs('satusehat.mapping-episodeofcare') ? 'active' : '' }}">
                         <i data-feather="map-pin"></i> <span>Mapping EpisodeOfCare</span>
+                    </a>
+                    <a href="{{ route('satusehat.mapping-lokasi') }}"
+                        class="menu-item {{ request()->routeIs('satusehat.mapping-lokasi') ? 'active' : '' }}">
+                        <i data-feather="map-pin"></i> <span>Mapping Lokasi</span>
+                    </a>
+                    <a href="{{ route('satusehat.mapping-organisasi') }}"
+                        class="menu-item {{ request()->routeIs('satusehat.mapping-organisasi') ? 'active' : '' }}">
+                        <i data-feather="briefcase"></i> <span>Mapping Organisasi</span>
+                    </a>
+                    <a href="{{ route('satusehat.mapping-laborat') }}"
+                        class="menu-item {{ request()->routeIs('satusehat.mapping-laborat') ? 'active' : '' }}">
+                        <i data-feather="layers"></i> <span>Mapping Laborat</span>
+                    </a>
+                    <a href="{{ route('satusehat.mapping-radiologi') }}"
+                        class="menu-item {{ request()->routeIs('satusehat.mapping-radiologi') ? 'active' : '' }}">
+                        <i data-feather="image"></i> <span>Mapping Radiologi</span>
+                    </a>
+                    <a href="{{ route('satusehat.mapping-obat') }}"
+                        class="menu-item {{ request()->routeIs('satusehat.mapping-obat') ? 'active' : '' }}">
+                        <i data-feather="package"></i> <span>Mapping Obat</span>
+                    </a>
+                    <a href="{{ route('satusehat.mapping-vaksin') }}"
+                        class="menu-item {{ request()->routeIs('satusehat.mapping-vaksin') ? 'active' : '' }}">
+                        <i data-feather="thermometer"></i> <span>Mapping Vaksin</span>
                     </a>
                     <a href="{{ route('satusehat.mapping-allergy') }}"
                         class="menu-item {{ request()->routeIs('satusehat.mapping-allergy') ? 'active' : '' }}">

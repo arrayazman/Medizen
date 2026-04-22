@@ -20,6 +20,16 @@ Jika aplikasi ini memberikan manfaat bagi fasyankes Anda dan Anda ingin mendukun
 
 ---
 
+## 📺 Video Tutorial Instalasi
+Untuk panduan visual yang lebih jelas mengenai cara instalasi MEDIZEN RIS dari awal, silakan tonton video berikut:
+
+[![Tutorial Instalasi MEDIZEN RIS](https://img.youtube.com/vi/fV4B9F4JBqo/0.jpg)](https://youtu.be/fV4B9F4JBqo)
+*Klik gambar di atas untuk menonton di YouTube.*
+
+---
+
+---
+
 ## 🏗️ Alur Kerja Sistem (Workflow)
 
 ```mermaid
@@ -122,20 +132,20 @@ graph LR
    ```
 
 6. **Konfigurasi Database**
-   Buat dua database kosong di MySQL/MariaDB bernama `medizen_ris` dan `simrs_database`. Kemudian buka file `.env` dan sesuaikan koneksi database Anda:
+   Buat dua database kosong di MySQL/MariaDB bernama `medizen` dan `simrs`. Kemudian buka file `.env` dan sesuaikan koneksi database Anda:
    ```env
    DB_CONNECTION=mysql
    DB_HOST=127.0.0.1
    DB_PORT=3306
-   DB_DATABASE=medizen_ris
+   DB_DATABASE=medizen
    DB_USERNAME=root
    DB_PASSWORD=
 
-   # Konfigurasi Database SIMRS (Jika terhubung SIMRS)
+   # Konfigurasi Database SIMRS (Database pasien/bridging)
    DB_SIMRS_CONNECTION=mysql
    DB_SIMRS_HOST=127.0.0.1
    DB_SIMRS_PORT=3306
-   DB_SIMRS_DATABASE=simrs_database
+   DB_SIMRS_DATABASE=simrs
    DB_SIMRS_USERNAME=root
    DB_SIMRS_PASSWORD=
    ```

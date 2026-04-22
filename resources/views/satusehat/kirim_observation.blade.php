@@ -1,32 +1,39 @@
 @extends('layouts.app')
 
-@section('page-title', 'Bridging Observation Radiologi (SIMRS)')
+@section('page-title', 'Kirim Observation Radiologi SATUSEHAT')
 
 @section('content')
 <div class="card card-medizen rounded-0 border-0 shadow-none">
-    <div class="card-header d-flex justify-content-between align-items-center bg-white border-bottom rounded-0">
+    <div class="card-header d-flex justify-content-between align-items-center bg-white border-bottom rounded-0 py-2">
         <div>
-            <h5 class="mb-0 fw-bold text-slate-800" style="font-size: 1.1rem;">Bridging Observation Radiologi (SIMRS)</h5>
-            <div class="text-muted small" style="font-size: 0.65rem;">SATUSEHAT INTEGRATION FROM SIMRS DATA</div>
+            <h5 class="mb-0 fw-bold text-slate-800" style="font-size: 1.1rem;">Kirim Observation Radiologi</h5>
+            <div class="text-muted small" style="font-size: 0.65rem;">BRIDGING HASIL PEMERIKSAAN RADIOLOGI (EXPERTISE) KE SATUSEHAT Resource</div>
         </div>
-                <div class="d-flex gap-2">
-                        <div class="dropdown">
+        <div class="d-flex gap-2">
+            <!-- Selection Dropdown -->
+            <div class="dropdown">
                 <button class="btn btn-dark btn-sm px-3 shadow-none fw-bold rounded-0 dropdown-toggle" style="font-size: 0.7rem;" type="button" data-bs-toggle="dropdown">
                     <i data-feather="check-square" class="me-1" style="width: 14px;"></i> PILIH DATA
                 </button>
-                <ul class="dropdown-menu rounded-0 shadow border-0" style="font-size: 0.75rem;">
-                    <li><a class="dropdown-item" href="#" onclick="$('.row-check:not(:disabled)').prop('checked', true); return false;">Select All (Semua)</a></li>
-                    <li><a class="dropdown-item" href="#" onclick="$('.row-check').prop('checked', false); $('.row-check-pending:not(:disabled)').prop('checked', true); return false;">Select Pending (Belum Terkirim)</a></li>
-                    <li><a class="dropdown-item" href="#" onclick="$('.row-check').prop('checked', false); $('.row-check-sent:not(:disabled)').prop('checked', true); return false;">Select Sent (Update Kirim)</a></li>
+                <ul class="dropdown-menu rounded-0 shadow border-0" style="font-size: 0.7rem;">
+                    <li><a class="dropdown-item" href="#" onclick="selectAll(true)">Select All (Semua)</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="selectStatus('kirim')">Select Pending (Kirim)</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="selectStatus('update')">Select Sent (Update)</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item text-danger" href="#" onclick="$('.row-check').prop('checked', false); return false;">Batalkan Pilihan</a></li>
+                    <li><a class="dropdown-item text-danger" href="#" onclick="selectAll(false)">Batalkan Pilihan</a></li>
                 </ul>
             </div>
-            <button id="btnKirimBaru" class="btn btn-emerald btn-sm px-3 shadow-none fw-bold rounded-0" style="font-size: 0.7rem;">
-                <i data-feather="send" class="me-2" style="width: 14px;"></i> KIRIM DATA BARU
+
+            <!-- Batch Buttons -->
+            <button class="btn btn-emerald btn-sm px-3 shadow-none fw-bold rounded-0" id="btnBatchKirim" style="font-size: 0.7rem;">
+                <i data-feather="send" class="me-2" style="width: 14px;"></i> KIRIM TERPILIH
             </button>
-            <button id="btnUpdateData" class="btn btn-info btn-sm px-3 shadow-none fw-bold rounded-0 text-white" style="font-size: 0.7rem;">
+            <button class="btn btn-info btn-sm px-3 shadow-none fw-bold rounded-0 text-white" id="btnBatchUpdate" style="font-size: 0.7rem;">
                 <i data-feather="refresh-cw" class="me-2" style="width: 14px;"></i> UPDATE TERPILIH
+            </button>
+
+            <button class="btn btn-outline-dark btn-sm px-3 shadow-none fw-bold rounded-0" onclick="togglePrivacyMode()" style="font-size: 0.7rem;" title="Toggle Privacy Mode">
+                <i data-feather="eye" class="me-2" style="width: 14px;"></i> PRIVACY
             </button>
             <button class="btn btn-outline-dark btn-sm px-3 shadow-none fw-bold rounded-0" style="font-size: 0.7rem;"
                 type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse">
@@ -41,28 +48,37 @@
             <form action="{{ route('satusehat.kirim-observation') }}" method="GET" class="p-2">
                 <div class="row g-1">
                     <div class="col-md-2 col-6">
-                        <label class="medizen-label-minimal mb-1" style="font-size: 0.55rem;">TGL AWAL</label>
-                        <input type="date" name="tgl1" class="form-control form-control-sm rounded-0"
-                            value="{{ $tgl1 }}" style="font-size: 0.6rem; height: 28px;">
+                        <label class="x-small fw-bold text-muted mb-1 d-block">MULAI (PERMINTAAN)</label>
+                        <input type="date" name="tgl1" class="form-control form-control-sm rounded-0 border-0 shadow-none px-2" 
+                               value="{{ $tgl1 }}" style="font-size: 0.65rem; height: 32px; background: #fff;">
                     </div>
-                    <div class="col-md-2 col-6">
-                        <label class="medizen-label-minimal mb-1" style="font-size: 0.55rem;">TGL AKHIR</label>
-                        <input type="date" name="tgl2" class="form-control form-control-sm rounded-0"
-                            value="{{ $tgl2 }}" style="font-size: 0.6rem; height: 28px;">
+                    <div class="col-md-2 col-6 border-start border-white">
+                        <label class="x-small fw-bold text-muted mb-1 d-block">SAMPAI</label>
+                        <input type="date" name="tgl2" class="form-control form-control-sm rounded-0 border-0 shadow-none px-2" 
+                               value="{{ $tgl2 }}" style="font-size: 0.65rem; height: 32px; background: #fff;">
                     </div>
-                    <div class="col-md-6 col-12">
-                        <label class="medizen-label-minimal mb-1" style="font-size: 0.55rem;">CARI PASIEN / RM / ORDER</label>
+                    <div class="col-md-2 col-12 border-start border-white">
+                        <label class="x-small fw-bold text-muted mb-1 d-block">PER HALAMAN</label>
+                        <select name="per_page" class="form-select form-select-sm rounded-0 border-0 shadow-none px-2" style="font-size: 0.65rem; height: 32px; background: #fff;">
+                            <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10 DATA</option>
+                            <option value="25" {{ $perPage == 25 ? 'selected' : '' }}>25 DATA</option>
+                            <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50 DATA</option>
+                            <option value="100" {{ $perPage == 100 ? 'selected' : '' }}>100 DATA</option>
+                            <option value="all" {{ $perPage > 500 ? 'selected' : '' }}>SEMUA DATA</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 col-12 border-start border-white ps-md-3">
+                        <label class="x-small fw-bold text-muted mb-1 d-block">PENCARIAN</label>
                         <div class="position-relative">
                             <i data-feather="search" class="position-absolute top-50 translate-middle-y ms-2 text-muted"
-                                style="width: 10px;"></i>
-                            <input type="text" name="keyword" class="form-control form-control-sm ps-4 rounded-0"
-                                placeholder="Search..." value="{{ $keyword }}" style="font-size: 0.6rem; height: 28px;">
+                                style="width: 12px;"></i>
+                            <input type="text" name="keyword" class="form-control form-control-sm ps-4 rounded-0 border-0 shadow-none"
+                                placeholder="RM / No. Rawat / Nama / No. Order..." value="{{ $keyword }}" style="font-size: 0.65rem; height: 32px; background: #fff;">
                         </div>
                     </div>
-                    <div class="col-md-2 col-12 d-flex align-items-end gap-1">
-                        <button type="submit" class="btn btn-dark btn-sm fw-bold rounded-0 flex-fill"
-                            style="font-size: 0.6rem; height: 28px;">
-                            <i data-feather="refresh-cw" class="me-1" style="width: 10px;"></i> TAMPILKAN
+                    <div class="col-md-2 col-12 align-self-end">
+                        <button type="submit" class="btn btn-dark btn-sm fw-bold rounded-0 w-100 py-1" style="font-size: 0.6rem; height: 32px;">
+                            TAMPILKAN DATA
                         </button>
                     </div>
                 </div>
@@ -70,67 +86,74 @@
         </div>
 
         <div class="table-responsive">
-            <table class="table table-medizen mb-0" id="table-data">
+            <table class="table table-medizen table-hover mb-0">
                 <thead>
                     <tr>
-                        <th class="py-2 small ps-3">Patient & Practitioner</th>
-                        <th class="py-2 small">Procedure & Result Time</th>
-                        <th class="py-2 small text-center">Specimen</th>
-                        <th class="py-2 small text-center">Observation</th>
-                        <th class="py-2 small text-center">Status</th>
-                        <th class="py-2 small text-end pe-3">Actions</th>
+                        <th width="3%" class="text-center align-middle">
+                            <input type="checkbox" id="checkAll" class="form-check-input shadow-none rounded-0">
+                        </th>
+                        <th width="22%">PASIEN & ENCOUNTER</th>
+                        <th width="15%">ORDER & NO. RAWAT</th>
+                        <th width="25%">PEMERIKSAAN & EXPERTISE</th>
+                        <th width="10%" class="text-center">HASIL PADA</th>
+                        <th width="15%" class="text-center">ID OBSERVATION</th>
+                        <th width="10%" class="text-center">AKSI</th>
                     </tr>
                 </thead>
-                <tbody id="data-list">
-                    @forelse ($orders as $row)
+                <tbody>
+                    @forelse($orders as $row)
+                        @php $payload = json_encode($row); @endphp
                         <tr>
-                            <td class="ps-3 align-middle" id="td-check-{{ md5($row->noorder.'_'.$row->kd_jenis_prw) }}">
-                                <div class="form-check mb-0">
-                                <input class="form-check-input row-check {{ $row->id_observation ? 'row-check-sent' : 'row-check-pending' }}" type="checkbox" value="{{ json_encode($row) }}">
+                            <td class="text-center align-middle">
+                                <input type="checkbox" class="form-check-input check-item shadow-none rounded-0" 
+                                       data-row='{{ $payload }}'
+                                       data-status="{{ $row->id_observation ? 'update' : 'kirim' }}">
+                            </td>
+                            <td class="align-middle">
+                                <div class="fw-bold text-slate-800" style="font-size: 0.7rem;">
+                                    <span class="privacy-mask peekable">{{ strtoupper($row->nm_pasien) }}</span>
                                 </div>
+                                <div class="text-muted" style="font-size: 0.55rem;">
+                                    RM: {{ $row->no_rkm_medis }} | NIK: <span class="privacy-mask peekable">{{ $row->no_ktp_pasien ?: '-' }}</span>
+                                </div>
+                                <div class="text-muted italic mt-1" style="font-size: 0.55rem;">Encounter: {{ $row->id_encounter ?: 'ERR: Missing' }}</div>
                             </td>
-                            <td>
-                                <div class="fw-bold text-slate-800 small">{{ strtoupper($row->nm_pasien) }}</div>
-                                <div class="text-muted" style="font-size: 0.6rem;">RM: <span class="privacy-mask">{{ $row->no_rkm_medis }}</span> | Oleh: <span class="privacy-mask">{{ $row->nama_dokter }}</span></div>
+                            <td class="align-middle">
+                                <div class="fw-bold text-emerald-700" style="font-size: 0.65rem;">{{ $row->noorder }}</div>
+                                <div class="text-muted" style="font-size: 0.55rem;">Rawat: {{ $row->no_rawat }}</div>
                             </td>
-                            <td>
-                                <div class="fw-bold text-slate-700 small"><span class="privacy-mask">{{ $row->nm_perawatan }}</span></div>
-                                <div class="text-muted" style="font-size: 0.6rem;">ACSN: {{ $row->noorder }} | HASIL: {{ $row->tgl_hasil }} {{ $row->jam_hasil }}</div>
+                            <td class="align-middle">
+                                <div class="fw-bold text-slate-700" style="font-size: 0.65rem;">{{ $row->nm_perawatan }}</div>
+                                <div class="text-muted x-small text-truncate" style="max-width: 250px; font-size: 0.55rem;">
+                                    {{ Str::limit(strip_tags($row->expertise), 100) }}
+                                </div>
+                                <div class="text-info" style="font-size: 0.55rem;">ID Specimen: {{ $row->id_specimen }}</div>
                             </td>
                             <td class="text-center align-middle">
-                                <code id="label-id-{{ md5($row->noorder.'_'.$row->kd_jenis_prw) }}" class="x-small text-slate-500">{{ $row->id_specimen ?: '-' }}</code>
+                                <div class="small fw-bold">{{ $row->tgl_hasil }}</div>
+                                <div class="text-muted x-small">{{ $row->jam_hasil }}</div>
                             </td>
                             <td class="text-center align-middle">
-                                <code id="label-id-{{ md5($row->noorder.'_'.$row->kd_jenis_prw) }}" class="x-small text-emerald fw-bold">{{ $row->id_observation ?: '-' }}</code>
-                            </td>
-                            <td class="text-center align-middle" id="td-status-{{ md5($row->noorder.'_'.$row->kd_jenis_prw) }}">
                                 @if($row->id_observation)
-                                    <span class="badge-modern bg-emerald text-white">SENT</span>
+                                    <code class="text-emerald fw-bold shadow-sm px-2 py-1" style="font-size: 0.6rem; background: #ecfdf5;">{{ $row->id_observation }}</code>
                                 @else
-                                    <span class="badge-modern bg-light text-muted border">PENDING</span>
+                                    <span class="text-muted x-small italic opacity-50">Belum Terkirim</span>
                                 @endif
                             </td>
-                            <td class="pe-3 text-end align-middle">
-                                @if($row->id_observation)
-                                    <button id="btn-single-{{ md5($row->noorder.'_'.$row->kd_jenis_prw) }}" class="btn btn-info rounded-0 px-2 py-1 x-small fw-bold text-white border-0" 
-                                            onclick='kirimData({{ json_encode($row) }}, "{{ md5($row->noorder."_".$row->kd_jenis_prw) }}")'>
-                                        RE-SYNC / UPDATE
-                                    </button>
-                                @else
-                                    <button id="btn-single-{{ md5($row->noorder.'_'.$row->kd_jenis_prw) }}" class="btn btn-emerald rounded-0 px-2 py-1 x-small fw-bold text-white border-0" 
-                                            onclick='kirimData({{ json_encode($row) }}, "{{ md5($row->noorder."_".$row->kd_jenis_prw) }}")'>
-                                        KIRIM DATA
-                                    </button>
-                                @endif
+                            <td class="text-center align-middle">
+                                <button class="btn {{ $row->id_observation ? 'btn-info' : 'btn-emerald' }} btn-xs px-3 rounded-0 fw-bold border-0 shadow-none text-white font-monospace" 
+                                        onclick="sendObservation(this)" 
+                                        data-row='{{ $payload }}'
+                                        style="font-size: 0.6rem;">
+                                    {{ $row->id_observation ? 'UPDATE' : 'KIRIM' }}
+                                </button>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center py-5">
-                                <div class="d-flex flex-column align-items-center opacity-50">
-                                    <i data-feather="calendar" style="width: 48px; height: 48px;" class="mb-3 text-muted"></i>
-                                    <h6 class="fw-bold small text-uppercase">TIDAK ADA DATA HASIL OBSERVASI</h6>
-                                </div>
+                            <td colspan="7" class="text-center py-5">
+                                <i data-feather="image" class="text-muted mb-2" style="width: 32px; height: 32px;"></i>
+                                <div class="text-muted small">TIDAK ADA HASIL RADIOLOGI YANG DITEMUKAN</div>
                             </td>
                         </tr>
                     @endforelse
@@ -140,103 +163,45 @@
     </div>
 
     <!-- Pagination Footer -->
-    @if($orders->hasPages())
+    @if($orders->total() > 0)
         <div class="px-4 py-3 bg-light-soft d-flex justify-content-between align-items-center border-top">
             <div class="text-muted fw-bold" style="font-size: 0.6rem; letter-spacing: 0.5px;">
-                SHOWING {{ $orders->firstItem() ?? 0 }}-{{ $orders->lastItem() ?? 0 }} OF {{ $orders->total() }} TOTAL
+                SHOWING {{ $orders->firstItem() }}-{{ $orders->lastItem() }} OF {{ $orders->total() }} DATA
             </div>
-            <nav aria-label="Pagination">
-                <ul class="pagination pagination-sm mb-0 gap-1">
-                    {{-- Previous --}}
-                    @if($orders->onFirstPage())
-                        <li class="page-item disabled">
-                            <span class="page-link rounded-0 fw-bold" style="font-size:0.6rem;letter-spacing:0.5px">‹ PREV</span>
-                        </li>
-                    @else
-                        <li class="page-item">
-                            <a class="page-link rounded-0 fw-bold" href="{{ $orders->appends(request()->query())->previousPageUrl() }}" style="font-size:0.6rem;letter-spacing:0.5px">‹ PREV</a>
-                        </li>
-                    @endif
-
-                    {{-- Page numbers ±2 --}}
-                    @foreach($orders->getUrlRange(max(1, $orders->currentPage() - 2), min($orders->lastPage(), $orders->currentPage() + 2)) as $page => $url)
-                        @if($page == $orders->currentPage())
-                            <li class="page-item active">
-                                <span class="page-link rounded-0 fw-bold bg-dark border-dark" style="font-size:0.6rem">{{ $page }}</span>
-                            </li>
-                        @else
-                            <li class="page-item">
-                                <a class="page-link rounded-0 fw-bold" href="{{ $orders->appends(request()->query())->url($page) }}" style="font-size:0.6rem">{{ $page }}</a>
-                            </li>
-                        @endif
-                    @endforeach
-
-                    {{-- Next --}}
-                    @if($orders->hasMorePages())
-                        <li class="page-item">
-                            <a class="page-link rounded-0 fw-bold" href="{{ $orders->appends(request()->query())->nextPageUrl() }}" style="font-size:0.6rem;letter-spacing:0.5px">NEXT ›</a>
-                        </li>
-                    @else
-                        <li class="page-item disabled">
-                            <span class="page-link rounded-0 fw-bold" style="font-size:0.6rem;letter-spacing:0.5px">NEXT ›</span>
-                        </li>
-                    @endif
-                </ul>
-            </nav>
+            @if($orders->hasPages())
+                <nav aria-label="Pagination">
+                    <ul class="pagination pagination-sm mb-0 gap-1">
+                        {{ $orders->appends(request()->query())->links('pagination::bootstrap-4') }}
+                    </ul>
+                </nav>
+            @endif
         </div>
     @endif
 </div>
 
-<!-- Modal Log (Medizen Style) -->
+<!-- Log Modal -->
 <div class="modal fade medizen-modal-minimal" id="modalLog" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content shadow-lg">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0">
             <div class="modal-header py-2 px-3">
-                <h6 class="modal-title px-0">LOG PENGIRIMAN SATUSEHAT</h6>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h6 class="modal-title px-0">SYSTEM LOG: OBSERVATION RADIOLOGI</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-0">
                 <div id="log-content" class="bg-dark text-emerald font-monospace p-3" 
-                     style="font-size: 0.65rem; height: 350px; overflow-y: auto; line-height: 1.5;">
+                     style="font-size: 0.65rem; height: 300px; overflow-y: auto; line-height: 1.6;">
                 </div>
             </div>
-            <div class="modal-footer bg-light py-1 px-3">
-                <button type="button" class="btn btn-dark btn-sm rounded-0 fw-bold x-small" data-bs-dismiss="modal">CLOSE WINDOW</button>
+            <div class="modal-footer py-1 px-3 bg-light border-top text-end">
+                <button type="button" class="btn btn-dark btn-xs rounded-0 fw-bold px-3 shadow-none" data-bs-dismiss="modal">CLOSE</button>
             </div>
         </div>
     </div>
 </div>
-
 @endsection
 
 @push('scripts')
 <script>
-    // --- GLOBAL PERSISTENT FILTER ---
-    $(document).ready(function() {
-        const globalKey = 'medizen_global_filter';
-        const urlParams = new URLSearchParams(window.location.search);
-
-        if (!urlParams.has('tgl1') && !urlParams.has('keyword')) {
-            const saved = localStorage.getItem(globalKey);
-            if (saved) {
-                const f = JSON.parse(saved);
-                if (f.tgl1) $('input[name="tgl1"]').val(f.tgl1);
-                if (f.tgl2) $('input[name="tgl2"]').val(f.tgl2);
-                if (f.keyword) $('input[name="keyword"]').val(f.keyword);
-            }
-        }
-
-        $('form').on('submit', function() {
-            const filters = {
-                tgl1: $('input[name="tgl1"]').val(),
-                tgl2: $('input[name="tgl2"]').val(),
-                keyword: $('input[name="keyword"]').val()
-            };
-            localStorage.setItem(globalKey, JSON.stringify(filters));
-        });
-    });
-    // --- END GLOBAL FILTER ---
-
     const appendLog = (type, msg) => {
         let color = 'text-white';
         if (type === 'ok') color = 'text-emerald fw-bold';
@@ -246,92 +211,72 @@
         $('#log-content').scrollTop($('#log-content')[0].scrollHeight);
     };
 
-    function updateRowUI(rowHash, newId) {
-        $(`#td-check-${rowHash}`).empty();
-        $(`#td-status-${rowHash}`).html('<span class="badge-modern bg-emerald text-white">SENT</span>');
-        $(`#label-id-${rowHash}`).text(newId);
-        $(`#btn-single-${rowHash}`).removeClass('btn-emerald').addClass('btn-info').text('RE-SYNC / UPDATE');
+     // --- Selection Logic ---
+     function selectAll(state) {
+        $('.check-item').prop('checked', state).trigger('change');
+        $('#checkAll').prop('checked', state);
     }
 
-    async function kirimData(row, rowHash) {
-        const modal = new bootstrap.Modal(document.getElementById('modalLog'));
-        $('#log-content').empty();
-        modal.show();
-
-        try {
-            appendLog('info', 'MENGHUBUNGI SERVER SATUSEHAT...');
-            const res = await $.post('{{ route("satusehat.kirim-observation.post") }}', {
-                _token: '{{ csrf_token() }}',
-                ...row
-            });
-            
-            if (res.logs) res.logs.forEach(l => appendLog(l.type, l.msg.toUpperCase()));
-            
-            if (res.ok) {
-                appendLog('ok', 'PROSES BERHASIL DISELESAIKAN.');
-                updateRowUI(rowHash, res.id_observation);
-            } else {
-                appendLog('err', 'GAGAL: ' + (res.msg || '').toUpperCase());
-            }
-        } catch (xhr) {
-            appendLog('err', 'FATAL ERROR: ' + xhr.responseText);
-        }
+    function selectStatus(status) {
+        $('.check-item').prop('checked', false);
+        $(`.check-item[data-status="${status}"]`).prop('checked', true).trigger('change');
     }
 
-    // Master Checkbox
-    $('#checkAll').on('change', function() {
-        $('.row-check:not(:disabled)').prop('checked', this.checked);
+    $('#checkAll').change(function() {
+        $('.check-item').prop('checked', this.checked).trigger('change');
     });
 
-    // Mass Send (Kirim Baru)
-    $('#btnKirimBaru').on('click', async function() {
-        const selected = $('.row-check-pending:checked');
-        if(selected.length === 0) return Swal.fire('Info', 'Silakan pilih data dengan status PENDING untuk dikirim!', 'info');
-        processBatch(selected, 'KIRIM DATA BARU');
+    // Individual Send
+    async function sendObservation(btn) {
+        const row = $(btn).data('row');
+        await doProcess([row]);
+    }
+
+    // Batch Send
+    $('#btnBatchKirim').click(async function() {
+        const selected = $('.check-item:checked').filter('[data-status="kirim"]').map(function() {
+            return $(this).data('row');
+        }).get();
+        if (selected.length === 0) return Swal.fire('Info', 'Pilih data dengan status KIRIM!', 'info');
+        await doProcess(selected);
     });
 
-    // Mass Update
-    $('#btnUpdateData').on('click', async function() {
-        const selected = $('.row-check-sent:checked');
-        if(selected.length === 0) return Swal.fire('Info', 'Silakan pilih data dengan status SENT untuk diperbarui!', 'info');
-        processBatch(selected, 'UPDATE DATA TERPILIH');
+    // Batch Update
+    $('#btnBatchUpdate').click(async function() {
+        const selected = $('.check-item:checked').filter('[data-status="update"]').map(function() {
+            return $(this).data('row');
+        }).get();
+        if (selected.length === 0) return Swal.fire('Info', 'Pilih data yang sudah SENT untuk diupdate!', 'info');
+        await doProcess(selected);
     });
 
-    async function processBatch(selected, title) {
-        const modal = new bootstrap.Modal(document.getElementById('modalLog'));
+    async function doProcess(rows) {
+        const modalLog = new bootstrap.Modal(document.getElementById('modalLog'));
         $('#log-content').empty();
-        modal.show();
+        modalLog.show();
 
-        appendLog('info', `MEMULAI BATCH: ${title} (${selected.length} DATA)`);
-        appendLog('info', '----------------------------------------');
-
-        for(let i = 0; i < selected.length; i++) {
-            const cb = $(selected[i]);
-            const row = JSON.parse(cb.val());
-            const rowHash = cb.closest('tr').find('td[id^="td-check-"]').attr('id').replace('td-check-', '');
-            
-            appendLog('info', `[${i+1}/${selected.length}] MEMPROSES OBSERVATION: ${row.noorder} ...`);
-            
+        for (const row of rows) {
             try {
+                appendLog('info', `PROSES: ${row.noorder} - ${row.nm_pasien}`);
+                
                 const res = await $.post('{{ route("satusehat.kirim-observation.post") }}', {
                     _token: '{{ csrf_token() }}',
                     ...row
                 });
-                
-                if (res.logs) res.logs.forEach(l => appendLog(l.type, l.msg.toUpperCase()));
 
                 if (res.ok) {
-                    appendLog('ok', `BERHASIL: ${row.noorder}.`);
-                    updateRowUI(rowHash, res.id_observation);
+                    appendLog('ok', `SUKSES: FHIR ID ${res.id_observation}`);
                 } else {
-                    appendLog('err', `GAGAL (${row.noorder}): ` + (res.msg || '').toUpperCase());
+                    appendLog('err', `GAGAL: ${res.msg}`);
                 }
             } catch (e) {
-                appendLog('err', `FATAL ERROR (${row.noorder}): ` + (e.responseText || e.message));
+                appendLog('err', `FATAL ERROR: ${e.responseText}`);
             }
-            appendLog('info', '----------------------------------------');
+            appendLog('info', '--------------------------------------------------');
         }
-        appendLog('ok', 'SELURUH PROSES BATCH SELESAI.');
+
+        appendLog('ok', 'PROSES SELESAI.');
+        // Swal.fire({ title: 'Selesai', icon: 'success' }).then(() => location.reload());
     }
 </script>
 @endpush

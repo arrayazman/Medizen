@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('page-title', 'Kirim Episode Of Care Satu Sehat')
+@section('page-title', 'Kirim Condition SATUSEHAT')
 
 @section('content')
 <div class="card card-medizen rounded-0 border-0 shadow-none">
     <div class="card-header d-flex justify-content-between align-items-center bg-white border-bottom rounded-0 py-2">
         <div>
-            <h5 class="mb-0 fw-bold text-slate-800" style="font-size: 1.1rem;">Kirim Episode Of Care</h5>
-            <div class="text-muted small" style="font-size: 0.65rem;">BRIDGING EPISODE OF CARE BERDASARKAN DIAGNOSA TERMAPPING</div>
+            <h5 class="mb-0 fw-bold text-slate-800" style="font-size: 1.1rem;">Kirim Condition (Diagnosis)</h5>
+            <div class="text-muted small" style="font-size: 0.65rem;">BRIDGING DIAGNOSA PASIEN KE SATUSEHAT Condition Resource</div>
         </div>
         <div class="d-flex gap-2">
             <div class="dropdown">
@@ -42,10 +42,10 @@
 
     <div class="card-body p-0">
         <div class="collapse show p-1 bg-light-soft border-bottom" id="filterCollapse">
-            <form action="{{ route('satusehat.kirim-episodeofcare') }}" method="GET" class="p-2">
+            <form action="{{ route('satusehat.kirim-condition') }}" method="GET" class="p-2">
                 <div class="row g-1">
                     <div class="col-md-2 col-6">
-                        <label class="x-small fw-bold text-muted mb-1 d-block">MULAI</label>
+                        <label class="x-small fw-bold text-muted mb-1 d-block">MULAI (TGL PULANG)</label>
                         <input type="date" name="tgl1" class="form-control form-control-sm rounded-0 border-0 shadow-none px-2" value="{{ $tgl1 }}" style="font-size: 0.65rem; height: 32px;">
                     </div>
                     <div class="col-md-2 col-6 border-start border-white">
@@ -54,13 +54,12 @@
                     </div>
                     <div class="col-md-4 col-12 border-start border-white ps-md-3">
                         <label class="x-small fw-bold text-muted mb-1 d-block">PENCARIAN</label>
-                        <input type="text" name="keyword" class="form-control form-control-sm rounded-0 border-0 shadow-none" placeholder="No. Rawat / RM / Nama..." value="{{ $keyword }}" style="font-size: 0.65rem; height: 32px;">
+                        <input type="text" name="keyword" class="form-control form-control-sm rounded-0 border-0 shadow-none" placeholder="No. Rawat / RM / Penyakit..." value="{{ $keyword }}" style="font-size: 0.65rem; height: 32px;">
                     </div>
                     <div class="col-md-2 col-6 border-start border-white">
                         <label class="x-small fw-bold text-muted mb-1 d-block">TAMPILKAN</label>
                         <select name="per_page" class="form-select form-select-sm rounded-0 border-0 shadow-none" style="font-size: 0.65rem; height: 32px;">
                             <option value="25" {{ $perPage == 25 ? 'selected' : '' }}>25 Data</option>
-                            <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50 Data</option>
                             <option value="100" {{ $perPage == 100 ? 'selected' : '' }}>100 Data</option>
                             <option value="all" {{ $perPage > 500 ? 'selected' : '' }}>Tampilkan Semua</option>
                         </select>
@@ -77,50 +76,50 @@
                 <thead>
                     <tr>
                         <th width="3%" class="text-center align-middle"><input type="checkbox" id="checkAll" class="form-check-input"></th>
-                        <th width="22%">PASIEN & DOKTER</th>
-                        <th width="15%">NO. RAWAT</th>
-                        <th width="25%">EPISODE TYPE</th>
-                        <th width="20%" class="text-center">ID FHIR</th>
-                        <th width="15%" class="text-center">AKSI</th>
+                        <th width="22%">PASIEN & ENCOUNTER</th>
+                        <th width="15%">REMAKS & NO. RAWAT</th>
+                        <th width="28%">DIAGNOSA (ICD-10)</th>
+                        <th width="12%" class="text-center">ID CONDITION</th>
+                        <th width="10%" class="text-center">AKSI</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($orders as $row)
                         @php 
                             $payload = json_encode($row); 
-                            $rowId = 'row-' . str_replace(['/', '.'], '-', $row->no_rawat) . '-' . $row->kode_episode;
+                            $rowId = 'row-' . str_replace(['/', '.'], '-', $row->no_rawat) . '-' . str_replace(['/', '.'], '-', $row->kd_penyakit);
                         @endphp
                         <tr id="{{ $rowId }}">
                             <td class="text-center align-middle">
-                                <input type="checkbox" class="form-check-input check-item" data-row='{{ $payload }}' data-status="{{ $row->id_episodeofcare ? 'update' : 'kirim' }}">
+                                <input type="checkbox" class="form-check-input check-item" data-row='{{ $payload }}' data-status="{{ $row->id_condition ? 'update' : 'kirim' }}">
                             </td>
                             <td class="align-middle">
                                 <div class="fw-bold text-slate-800" style="font-size: 0.7rem;"><span class="privacy-mask peekable">{{ strtoupper($row->nm_pasien) }}</span></div>
-                                <div class="text-muted" style="font-size: 0.55rem;">RM: {{ $row->no_rkm_medis }} | Dokter: {{ $row->nm_dokter }}</div>
+                                <div class="text-muted" style="font-size: 0.55rem;">RM: {{ $row->no_rkm_medis }} | Encounter: {{ $row->id_encounter ?: '-' }}</div>
                             </td>
                             <td class="align-middle">
                                 <div class="fw-bold text-emerald-700" style="font-size: 0.65rem;">{{ $row->no_rawat }}</div>
-                                <div class="text-muted x-small" style="font-size: 0.55rem;">{{ $row->tgl_registrasi }} | Status: {{ $row->stts }}</div>
+                                <div class="text-muted" style="font-size: 0.55rem;">{{ $row->status_lanjut }} | Pulang: {{ $row->pulang }}</div>
                             </td>
                             <td class="align-middle">
-                                <div class="text-slate-700 fw-bold" style="font-size: 0.65rem; white-space: normal;">{{ $row->display_episode }}</div>
-                                <div class="text-muted" style="font-size: 0.55rem;">Condition ID: {{ $row->id_condition ?: '-' }}</div>
+                                <div class="text-slate-700 fw-bold" style="font-size: 0.65rem; white-space: normal;">{{ $row->kd_penyakit }} - {{ $row->nm_penyakit }}</div>
+                                <div class="text-muted italic" style="font-size: 0.55rem;">Status: {{ $row->stts }}</div>
                             </td>
                             <td class="text-center align-middle fhir-id-cell">
-                                @if($row->id_episodeofcare)
-                                    <code class="text-emerald fw-bold px-2 py-1" style="font-size: 0.6rem; background: #ecfdf5;">{{ $row->id_episodeofcare }}</code>
+                                @if($row->id_condition)
+                                    <code class="text-emerald fw-bold px-2 py-1" style="font-size: 0.6rem; background: #ecfdf5;">{{ $row->id_condition }}</code>
                                 @else
                                     <span class="text-muted x-small italic opacity-50">Pending</span>
                                 @endif
                             </td>
                             <td class="text-center align-middle action-cell">
-                                <button class="btn btn-emerald btn-xs px-3 rounded-0 fw-bold border-0 shadow-none text-white" onclick="sendEpisode(this)" data-row='{{ $payload }}' style="font-size: 0.6rem;">
-                                    {{ $row->id_episodeofcare ? 'UPDATE' : 'KIRIM' }}
+                                <button class="btn btn-emerald btn-xs px-3 rounded-0 fw-bold border-0 shadow-none text-white" onclick="sendCondition(this)" data-row='{{ $payload }}' style="font-size: 0.6rem;">
+                                    {{ $row->id_condition ? 'UPDATE' : 'KIRIM' }}
                                 </button>
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="6" class="text-center py-5 text-muted small">TIDAK ADA DATA EPISODE OF CARE</td></tr>
+                        <tr><td colspan="6" class="text-center py-5 text-muted small">TIDAK ADA DATA DIAGNOSA</td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -139,22 +138,17 @@
                     </div>
                     <div>
                         <h6 class="modal-title fw-bold mb-0" style="letter-spacing: 0.5px;">PROSES TRANSMISI SATUSEHAT</h6>
-                        <div class="x-small opacity-75">Sistem sedang memproses data kuanonisasi FHIR...</div>
+                        <div class="x-small opacity-75">Condition (Diagnosis) Synchronization...</div>
                     </div>
                 </div>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="font-size: 0.7rem;"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-0">
-                <div id="log-content" class="p-4" 
-                     style="font-size: 0.75rem; height: 400px; overflow-y: auto; background: #f8fafc; font-family: 'JetBrains Mono', 'Fira Code', monospace;">
-                    <div class="text-muted italic small mb-3 border-bottom pb-2">Initializing processing queue...</div>
-                </div>
+                <div id="log-content" class="p-4" style="font-size: 0.75rem; height: 400px; overflow-y: auto; background: #f8fafc; font-family: monospace;"></div>
             </div>
             <div class="modal-footer py-2 px-4 bg-white border-top border-light d-flex justify-content-between align-items-center">
-                <div id="process-stats" class="small text-muted">
-                    <span class="badge bg-emerald-soft text-emerald rounded-pill px-3 py-1">Ready to process</span>
-                </div>
-                <button type="button" class="btn btn-dark btn-sm rounded-0 fw-bold px-4 shadow-none" data-bs-dismiss="modal">TUTUP LOG</button>
+                <div id="process-stats" class="small text-muted">Ready.</div>
+                <button type="button" class="btn btn-dark btn-sm rounded-0 fw-bold px-4" data-bs-dismiss="modal">TUTUP LOG</button>
             </div>
         </div>
     </div>
@@ -163,82 +157,61 @@
 
 @push('scripts')
 <style>
-    /* Medizen Styles for the modal content */
     #log-content div { margin-bottom: 4px; padding-left: 10px; border-left: 2px solid transparent; }
-    .log-info { border-left-color: #94a3b8 !important; color: #475569; }
-    .log-success { border-left-color: #10b981 !important; color: #059669; font-weight: 600; background: #f0fdf4; padding: 5px 10px; }
-    .log-error { border-left-color: #ef4444 !important; color: #dc2626; font-weight: 600; background: #fef2f2; padding: 5px 10px; }
-    .bg-emerald-soft { background: #ecfdf5; }
+    .log-info { border-left-color: #94a3b8; color: #475569; }
+    .log-success { border-left-color: #10b981; color: #059669; font-weight: 600; background: #f0fdf4; padding: 5px; }
+    .log-error { border-left-color: #ef4444; color: #dc2626; font-weight: 600; background: #fef2f2; padding: 5px; }
 </style>
-
 <script>
     const appendLog = (type, msg) => {
         let cls = 'log-info';
-        let icon = '<i data-feather="info" class="me-2" style="width:12px;"></i>';
-        if (type === 'ok') { cls = 'log-success'; icon = '<i data-feather="check-circle" class="me-2" style="width:12px;"></i>'; }
-        if (type === 'err') { cls = 'log-error'; icon = '<i data-feather="alert-triangle" class="me-2" style="width:12px;"></i>'; }
-        
-        const timestamp = `<span class="text-muted opacity-50 me-2" style="font-size: 0.6rem;">${new Date().toLocaleTimeString()}</span>`;
-        $('#log-content').append(`<div class="${cls}">${timestamp}${icon}${msg}</div>`);
+        if (type === 'ok') cls = 'log-success';
+        if (type === 'err') cls = 'log-error';
+        $('#log-content').append(`<div class="${cls}"><span class="text-muted small me-2">${new Date().toLocaleTimeString()}</span> ${msg}</div>`);
         $('#log-content').scrollTop($('#log-content')[0].scrollHeight);
-        feather.replace();
     };
 
     function selectAll(state) { $('.check-item').prop('checked', state); }
     function selectStatus(status) { $('.check-item').prop('checked', false); $(`.check-item[data-status="${status}"]`).prop('checked', true); }
 
-    async function sendEpisode(btn) { await doProcess([$(btn).data('row')]); }
+    async function sendCondition(btn) { await doProcess([$(btn).data('row')]); }
     
     $('#btnBatchKirim').click(async function() {
-        const selected = $('.check-item:checked').filter(function() { return $(this).data('status') === 'kirim'; }).map(function() { return $(this).data('row'); }).get();
-        if (selected.length === 0) return Swal.fire({ title: 'Info', text: 'Pilih data dengan status PENDING untuk dikirim!', icon: 'info' });
+        const selected = $('.check-item:checked').filter('[data-status="kirim"]').map(function() { return $(this).data('row'); }).get();
+        if (selected.length === 0) return Swal.fire('Info', 'Pilih data PENDING!', 'info');
         await doProcess(selected);
     });
 
     $('#btnBatchUpdate').click(async function() {
-        const selected = $('.check-item:checked').filter(function() { return $(this).data('status') === 'update'; }).map(function() { return $(this).data('row'); }).get();
-        if (selected.length === 0) return Swal.fire({ title: 'Info', text: 'Pilih data dengan status SENT untuk diupdate!', icon: 'info' });
+        const selected = $('.check-item:checked').filter('[data-status="update"]').map(function() { return $(this).data('row'); }).get();
+        if (selected.length === 0) return Swal.fire('Info', 'Pilih data SENT!', 'info');
         await doProcess(selected);
     });
 
     async function doProcess(rows) {
         const modalLog = new bootstrap.Modal(document.getElementById('modalLog'));
-        $('#log-content').empty();
-        $('#process-stats').html(`<span class="badge bg-emerald-soft text-emerald rounded-pill px-3 py-1 animate-pulse">Memproses 0 / ${rows.length} data...</span>`);
-        modalLog.show();
-
+        $('#log-content').empty(); modalLog.show();
         let successCount = 0;
         for (let i = 0; i < rows.length; i++) {
             const row = rows[i];
-            const rowId = 'row-' + row.no_rawat.replace(/[\/\.]/g, '-') + '-' + row.kode_episode;
+            const rowId = 'row-' + row.no_rawat.replace(/[\/\.]/g, '-') + '-' + row.kd_penyakit.replace(/[\/\.]/g, '-');
             const $targetRow = $('#' + rowId);
-            
-            $('#process-stats').html(`<span class="badge bg-emerald-soft text-emerald rounded-pill px-3 py-1">Memproses ${i+1} / ${rows.length} data...</span>`);
-            appendLog('info', `PROSES: ${row.no_rawat} (${row.display_episode})`);
-            
+            $('#process-stats').text(`Processing ${i+1}/${rows.length}...`);
+            appendLog('info', `PROSES: ${row.no_rawat} - ${row.kd_penyakit}`);
             try {
-                const res = await $.post('{{ route("satusehat.kirim-episodeofcare.post") }}', { _token: '{{ csrf_token() }}', ...row });
+                const res = await $.post('{{ route("satusehat.kirim-condition.post") }}', { _token: '{{ csrf_token() }}', ...row });
                 if (res.ok) {
                     successCount++;
-                    appendLog('ok', `BERHASIL: FHIR ID ${res.id_episodeofcare}`);
-                    
-                    const fhirIdHtml = `<code class="text-emerald fw-bold px-2 py-1" style="font-size: 0.6rem; background: #ecfdf5;">${res.id_episodeofcare}</code>`;
-                    $targetRow.find('.fhir-id-cell').html(fhirIdHtml);
-                    
-                    const btnHtml = `<button class="btn btn-emerald btn-xs px-3 rounded-0 fw-bold border-0 shadow-none text-white" onclick="sendEpisode(this)" data-row='${JSON.stringify({...row, id_episodeofcare: res.id_episodeofcare})}' style="font-size: 0.6rem;">UPDATE</button>`;
-                    $targetRow.find('.action-cell').html(btnHtml);
-                    
+                    appendLog('ok', `SUKSES: ${res.id_condition}`);
+                    $targetRow.find('.fhir-id-cell').html(`<code class="text-emerald fw-bold px-2 py-1" style="font-size: 0.6rem; background: #ecfdf5;">${res.id_condition}</code>`);
+                    $targetRow.find('.action-cell').html(`<button class="btn btn-emerald btn-xs px-3 rounded-0 fw-bold border-0 shadow-none text-white" onclick="sendCondition(this)" data-row='${JSON.stringify({...row, id_condition: res.id_condition})}' style="font-size: 0.6rem;">UPDATE</button>`);
                     $targetRow.find('.check-item').attr('data-status', 'update').prop('checked', false);
                 } else {
                     appendLog('err', `GAGAL: ${res.msg}`);
                 }
-            } catch (e) { 
-                appendLog('err', `ERROR SISTEM: ${e.statusText || 'Terjadi kesalahan internal'}`); 
-            }
+            } catch (e) { appendLog('err', `ERROR: ${e.statusText}`); }
         }
-        
-        appendLog('ok', `SEMUA SELESAI. ${successCount} data berhasil diproses.`);
-        $('#process-stats').html(`<span class="badge bg-emerald text-white rounded-pill px-3 py-1">Selesai: ${successCount} Berhasil, ${rows.length - successCount} Gagal</span>`);
+        $('#process-stats').text(`Done. ${successCount} Success.`);
     }
 </script>
 @endpush
