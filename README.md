@@ -20,11 +20,15 @@ Jika aplikasi ini memberikan manfaat bagi fasyankes Anda dan Anda ingin mendukun
 
 ---
 
-## 📺 Video Tutorial Instalasi
-Untuk panduan visual yang lebih jelas mengenai cara instalasi MEDIZEN RIS dari awal, silakan tonton video berikut:
-
-[![Tutorial Instalasi MEDIZEN RIS](https://img.youtube.com/vi/fV4B9F4JBqo/0.jpg)](https://youtu.be/fV4B9F4JBqo)
-*Klik gambar di atas untuk menonton di YouTube.*
+<div align="center">
+  <h2>📺 Video Tutorial Instalasi</h2>
+  <p>Tonton panduan langkah demi langkah untuk melakukan instalasi MEDIZEN RIS dari nol.</p>
+  <a href="https://youtu.be/fV4B9F4JBqo" target="_blank">
+    <img src="https://img.youtube.com/vi/fV4B9F4JBqo/maxresdefault.jpg" width="700" style="border-radius:10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" alt="Tutorial Instalasi MEDIZEN RIS">
+  </a>
+  <br>
+  <p><b><a href="https://youtu.be/fV4B9F4JBqo" target="_blank">Klik di sini untuk menonton di YouTube</a></b></p>
+</div>
 
 ---
 
